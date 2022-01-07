@@ -67,10 +67,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      */
 
     [_LAYER_1] = LAYOUT(
-        _______, _______, KC_CIRC, KC_UP,   KC_GRV,  KC_BSLS,             KC_PGUP, KC_P7,   KC_P8,   KC_P9,   KC_PAST, KC_PSLS,
-        _______, KC_QUES, KC_LEFT, KC_DOWN, KC_RGHT, KC_EXLM,             KC_EQL,  KC_P4,   KC_P5,   KC_P6,   KC_PPLS, KC_PMNS,
-        KC_LSPO, KC_PERC, KC_AMPR, KC_DLR,  KC_HASH, KC_AT,               KC_PGDN, KC_P1,   KC_P2,   KC_P3,   _______, KC_RSPC,
-                          _______, _______,                                                 KC_P0,   KC_PDOT,
+        _______, _______, KC_CIRC, KC_UP,   KC_GRV,  KC_BSLS,             KC_PGUP, KC_7,    KC_8,    KC_9,    KC_PAST, KC_PSLS,
+        _______, KC_QUES, KC_LEFT, KC_DOWN, KC_RGHT, KC_EXLM,             KC_EQL,  KC_4,    KC_5,    KC_6,    KC_PPLS, KC_PMNS,
+        KC_LSPO, KC_PERC, KC_AMPR, KC_DLR,  KC_HASH, KC_AT,               KC_PGDN, KC_1,    KC_2,    KC_3,    _______, KC_RSPC,
+                          _______, _______,                                                 KC_0,    KC_DOT,
                                             _______, _______,             _______, _______,
                                             _______, _______,             _______, _______,
                                             _______, _______,             _______, _______
