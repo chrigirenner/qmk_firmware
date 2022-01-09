@@ -255,6 +255,43 @@ void register_button(bool pressed, enum mouse_buttons button) {
 }
 #endif
 
+bool is_left(keyevent_t* event) {
+  return event->key.row < MATRIX_ROWS / 2;
+}
+
+struct {
+  bool active;
+	uint8_t code;
+	uint8_t mods;
+  uint8_t tap;
+	bool left;
+} last_mod = { false };
+
+bool maybe_cancel_mod(keyevent_t* event) {
+  if (last_mod.active && (is_left(event) == last_mod.left)) {
+    dprint("******** cancel mod on same hand\n");
+    unregister_mods(last_mod.mods);
+    register_code(last_mod.tap);
+    last_mod.active = false;
+    return true;
+  }
+  return false;
+}
+
+void mod_release(uint8_t code) {
+  if (last_mod.active && (last_mod.code == code)) {
+    last_mod.active = false;
+  }
+}
+
+void mod_press(keyevent_t* event, action_t* action, uint8_t mods) {
+  last_mod.active = true;
+  last_mod.left = is_left(event);
+  last_mod.mods = mods;
+  last_mod.tap = action->layer_tap.code;
+  last_mod.code = action->key.code;
+}
+
 /** \brief Take an action and processes it.
  *
  * FIXME: Needs documentation.
@@ -278,10 +315,17 @@ void process_action(keyrecord_t *record, action_t action) {
     }
 #endif
 
+    // chrigi
+		if (action.key.code == KC_SPC) {
+		  dprint("******** space key\n");
+		}
+    dprintf("******** col: %d row: %d left: %d\n", event.key.col, event.key.row, is_left(&event));
+
     switch (action.kind.id) {
         /* Key and Mods */
         case ACT_LMODS:
         case ACT_RMODS: {
+		        dprint("******** first case\n");
             uint8_t mods = (action.kind.id == ACT_LMODS) ? action.key.mods : action.key.mods << 4;
             if (event.pressed) {
                 if (mods) {
@@ -295,8 +339,11 @@ void process_action(keyrecord_t *record, action_t action) {
                     }
                     send_keyboard_report();
                 }
+                maybe_cancel_mod(&event);
+                dprint("******** registering code\n");
                 register_code(action.key.code);
             } else {
+              mod_release(action.key.code);
                 unregister_code(action.key.code);
                 if (mods) {
                     if (IS_MOD(action.key.code) || action.key.code == KC_NO) {
@@ -311,10 +358,12 @@ void process_action(keyrecord_t *record, action_t action) {
 #ifndef NO_ACTION_TAPPING
         case ACT_LMODS_TAP:
         case ACT_RMODS_TAP: {
+		        dprint("******** second case\n");
             uint8_t mods = (action.kind.id == ACT_LMODS_TAP) ? action.key.mods : action.key.mods << 4;
             switch (action.layer_tap.code) {
 #    ifndef NO_ACTION_ONESHOT
                 case MODS_ONESHOT:
+										dprint("******** first inner case\n");
                     // Oneshot modifier
                     if (keymap_config.oneshot_disable) {
                         if (event.pressed) {
@@ -383,6 +432,7 @@ void process_action(keyrecord_t *record, action_t action) {
                     break;
 #    endif
                 case MODS_TAP_TOGGLE:
+										dprint("******** second inner case\n");
                     if (event.pressed) {
                         if (tap_count <= TAPPING_TOGGLE) {
                             register_mods(mods);
@@ -394,6 +444,7 @@ void process_action(keyrecord_t *record, action_t action) {
                     }
                     break;
                 default:
+										dprint("******** second inner default\n");
                     if (event.pressed) {
                         if (tap_count > 0) {
 #    if !defined(IGNORE_MOD_TAP_INTERRUPT) || defined(IGNORE_MOD_TAP_INTERRUPT_PER_KEY)
@@ -415,6 +466,7 @@ void process_action(keyrecord_t *record, action_t action) {
                         } else {
                             dprint("MODS_TAP: No tap: add_mods\n");
                             register_mods(mods);
+                            mod_press(&event, &action, mods);
                         }
                     } else {
                         if (tap_count > 0) {
@@ -428,6 +480,7 @@ void process_action(keyrecord_t *record, action_t action) {
                         } else {
                             dprint("MODS_TAP: No tap: add_mods\n");
                             unregister_mods(mods);
+                            mod_release(action.key.code);
                         }
                     }
                     break;
@@ -529,6 +582,7 @@ void process_action(keyrecord_t *record, action_t action) {
             if (event.pressed) {
                 layer_on(action.layer_mods.layer);
                 register_mods(action.layer_mods.mods);
+                mod_press(&event, &action, action.layer_mods.mods);
             } else {
                 unregister_mods(action.layer_mods.mods);
                 layer_off(action.layer_mods.layer);
