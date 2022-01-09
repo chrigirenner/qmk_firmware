@@ -20,8 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "config_common.h"
 
+// #define DEBUG_ACTION
+
 #define TAPPING_TOGGLE 2
 #define IGNORE_MOD_TAP_INTERRUPT
+
+#define TAPPING_TERM 150
+#define PERMISSIVE_HOLD
 
 /* USB Device descriptor parameter */
 #define PRODUCT_ID 0x3436
