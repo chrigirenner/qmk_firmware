@@ -461,6 +461,7 @@ void process_action(keyrecord_t *record, action_t action) {
 #    endif
                             {
                                 dprint("MODS_TAP: Tap: register_code\n");
+                                maybe_cancel_mod(&event);
                                 register_code(action.key.code);
                             }
                         } else {
@@ -478,7 +479,7 @@ void process_action(keyrecord_t *record, action_t action) {
                             }
                             unregister_code(action.key.code);
                         } else {
-                            dprint("MODS_TAP: No tap: add_mods\n");
+                            dprint("MODS_TAP: No tap: unregister_mods\n");
                             unregister_mods(mods);
                             mod_release(action.key.code);
                         }
